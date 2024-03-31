@@ -133,7 +133,80 @@ SELECT * FROM frameworks f
 SELECT * FROM lenguajes_frameworks_entornos ORDER BY entorno;
 
 DELETE FROM lenguajes WHERE lenguaje_id = 3;
-UPDATE lenguajes SET lenguaje_id = 99 WHERE lenguaje_id = 3;
+UPDATE lenguajes SET lenguaje_id = 3 WHERE lenguaje_id = 99;
 
 
 SELECT * FROM frameworks f;
+
+/*
+ * TRANSACCIONES
+ * */
+#Necesito ejecutar estas tres transacciones 
+START TRANSACTION;
+	UPDATE frameworks SET framework = 'Vue.js' WHERE framework_id = 3;
+	DELETE FROM frameworks;
+	INSERT INTO frameworks VALUES(0,'Spring', 5, 2);
+
+
+SELECT * FROM frameworks f;	
+
+-- Las transacciones deben terminar con un commit que es para aceptar los cambios o un rollback si se quiere deshacer todos los cambios desde que se inicio la transaccion
+
+ROLLBACK; #Instruccion para echar hacia atras una transaccion
+COMMIT; #Para confirmar transaccion
+
+/*CLAUSULA LIMIT*/
+
+#Limita la cantidad de datos a mostrar
+#Cuando tenemos un solo valor en limit le decimos mostrar los primeros 2
+
+SELECT * FROM frameworks f LIMIT 2;
+
+-- Mostrar elementos del siguiente al registro dos, el segundo numero dice cuantos elementos a mostrar (en este caso 4 elementos)
+SELECT * FROM frameworks f LIMIT 2,2;
+
+-- Funciona para la paginacion de datos y mostrarlos por paginas
+
+/*
+ * FUNCIONES DE ENCRIPTACION
+ * */
+
+#Devuelve la cadena que le damos en un formato de hash
+SELECT MD5('m1 Sup3r P4$$w0rD') AS password_encriptado;
+SELECT SHA1('m1 Sup3r P4$$w0rD') AS password_encriptado;
+SELECT SHA2('m1 Sup3r P4$$w0rD', 256) AS password_encriptado;
+
+
+-- Mecanismo mas popular de encriptacion
+-- Encriptacion de doble autenticacion, el segundo argumento es el factor de doble autenticacion para poder desencriptar el dato a guardar
+SELECT AES_ENCRYPT('m1 Sup3r P4$$w0rD', 'secret_key')
+-- Como desencriptarlo
+
+-- SELECT AES_DECRYPT(nombre_campo, 'secret_key')
+
+CREATE TABLE pagos_recurrentes(
+	
+	cuenta VARCHAR(8) PRIMARY KEY,
+	nombre VARCHAR(50) NOT NULL,
+	-- Tipo BLOB funciona para guardar archivos encriptados o ficheros binarios
+	tarjeta BLOB 
+
+);
+
+INSERT INTO pagos_recurrentes (cuenta, nombre, tarjeta) VALUES
+('12345678', 'Daniel', AES_ENCRYPT('1097781698123456', 'milo')),
+('12345677', 'Irma', AES_ENCRYPT('9124904712345678', 'secret_key')),
+('12345676', 'Kenai', AES_ENCRYPT('6332992712345678', 'hermindilla')),
+('12345675', 'Kala', AES_ENCRYPT('6494325912345678', 'marifer')),
+('12345674', 'Miguel', AES_ENCRYPT('10986547324124123456', 'duqueza_secreta'))
+
+SELECT * FROM pagos_recurrentes;
+
+-- Si quiero que me muestre los datos desencriptados, (hacer casting)
+
+SELECT CAST(AES_DECRYPT(tarjeta, 'milo') AS CHAR) AS tdc, nombre FROM pagos_recurrentes;
+
+SELECT CAST(AES_DECRYPT(tarjeta, 'marifer') AS CHAR) AS tdc, nombre FROM pagos_recurrentes;
+
+SELECT CAST(AES_DECRYPT(tarjeta, 'duqueza_secreta') AS CHAR) AS tdc, nombre FROM pagos_recurrentes;
+
